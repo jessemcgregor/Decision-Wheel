@@ -127,6 +127,7 @@ const image = document.getElementById("centerImage");
   const colorPool = ["#f94144", "#f3722c", "#f9c74f", "#43aa8b", "#577590", "#277da1", "#90be6d"];
 
   document.getElementById("optionForm").addEventListener("submit", function (e) {
+  console.log("[DEBUG] Add Option form submitted");
   e.preventDefault();
   const input = document.getElementById("optionLabel");
   console.log("Add Option Clicked:", input.value);
