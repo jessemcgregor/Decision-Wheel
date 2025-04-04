@@ -10,19 +10,25 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       padding: 20px;
       background: #f4f4f4;
     }
     canvas {
+      margin: 20px 0;
+    }
+    form, .options-list {
+      width: 100%;
+      max-width: 300px;
       margin-bottom: 20px;
     }
-    button, input, textarea {
+    input, button {
       font-size: 16px;
-      margin: 5px;
-      padding: 8px 12px;
+      margin: 5px 0;
+      padding: 8px;
       border-radius: 6px;
       border: 1px solid #ccc;
+      width: 100%;
     }
     button {
       background-color: #4caf50;
@@ -30,28 +36,73 @@
       border: none;
       cursor: pointer;
     }
-    textarea {
-      width: 280px;
-      height: 100px;
-      resize: none;
+    .option-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 5px;
+      background: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+    .option-label {
+      flex: 1;
+    }
+    .remove-btn {
+      background: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <canvas id="wheelCanvas" width="300" height="300"></canvas>  <textarea id="optionsInput" placeholder="Enter options, one per line">Pizza\nSushi\nTacos\nBurgers\nSalad\nPasta</textarea><br><button onclick="updateOptions()">Update Options</button> <button onclick="spinWheel()">Spin</button>
+  <h2>Decision Wheel</h2>  <form onsubmit="addOption(event)">
+    <input type="text" id="optionLabel" placeholder="Option label" required />
+    <input type="color" id="optionColor" value="#ffcc80" />
+    <button type="submit">Add Option</button>
+  </form>  <div class="options-list" id="optionsList"></div><canvas id="wheelCanvas" width="300" height="300"></canvas> <button onclick="spinWheel()">Spin</button>
 
   <script>
-    let options = [];
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
     const radius = canvas.width / 2;
+    let options = [];
     let angle = 0;
     let spinning = false;
 
-    function updateOptions() {
-      const input = document.getElementById("optionsInput").value;
-      options = input.split("\n").map(opt => opt.trim()).filter(opt => opt);
+    function addOption(e) {
+      e.preventDefault();
+      const label = document.getElementById("optionLabel").value.trim();
+      const color = document.getElementById("optionColor").value;
+      if (label) {
+        options.push({ label, color });
+        document.getElementById("optionLabel").value = "";
+        renderOptions();
+        drawWheel();
+      }
+    }
+
+    function removeOption(index) {
+      options.splice(index, 1);
+      renderOptions();
       drawWheel();
+    }
+
+    function renderOptions() {
+      const list = document.getElementById("optionsList");
+      list.innerHTML = "";
+      options.forEach((opt, idx) => {
+        const item = document.createElement("div");
+        item.className = "option-item";
+        item.innerHTML = `
+          <span class="option-label">${opt.label}</span>
+          <button class="remove-btn" onclick="removeOption(${idx})">Remove</button>
+        `;
+        list.appendChild(item);
+      });
     }
 
     function drawWheel() {
@@ -64,7 +115,7 @@
         ctx.beginPath();
         ctx.moveTo(radius, radius);
         ctx.arc(radius, radius, radius, start, end);
-        ctx.fillStyle = i % 2 === 0 ? "#ffcc80" : "#ffb74d";
+        ctx.fillStyle = options[i].color;
         ctx.fill();
         ctx.stroke();
         ctx.save();
@@ -73,7 +124,7 @@
         ctx.textAlign = "right";
         ctx.fillStyle = "#333";
         ctx.font = "16px sans-serif";
-        ctx.fillText(options[i], radius - 10, 5);
+        ctx.fillText(options[i].label, radius - 10, 5);
         ctx.restore();
       }
     }
@@ -95,9 +146,9 @@
           requestAnimationFrame(animate);
         } else {
           spinning = false;
-          const selectedIndex = Math.floor((options.length - (angle / (2 * Math.PI) * options.length)) % options.length);
-          const selected = options[selectedIndex < 0 ? selectedIndex + options.length : selectedIndex];
-          alert(`You got: ${selected}!`);
+          const index = Math.floor((options.length - (angle / (2 * Math.PI) * options.length)) % options.length);
+          const selected = options[index < 0 ? index + options.length : index];
+          alert(`You got: ${selected.label}!`);
         }
       }
 
@@ -107,7 +158,5 @@
     function easeOut(t) {
       return 1 - Math.pow(1 - t, 3);
     }
-
-    updateOptions(); // initialize with default options
   </script></body>
 </html>
