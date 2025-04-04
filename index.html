@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -16,7 +15,7 @@
       display: block;
       margin: 20px auto;
     }
-    input, button {
+    input, button, select {
       font-size: 16px;
       padding: 10px;
       margin: 5px;
@@ -34,21 +33,18 @@
     }
   </style>
 </head>
-<body>
-
-<h2>Decision Wheel</h2>
-
-<form id="optionForm">
+<body><h2>Decision Wheel</h2><form id="optionForm">
   <input type="text" id="optionLabel" placeholder="Enter option" required />
   <button type="submit">Add Option</button>
-</form>
+</form><div id="optionList"></div><canvas id="wheelCanvas" width="300" height="300"></canvas> <button onclick="spinWheel()">Spin</button>
 
-<div id="optionList"></div>
-
-<canvas id="wheelCanvas" width="300" height="300"></canvas>
-<button onclick="spinWheel()">Spin</button>
-
-<script>
+<h3>Saved Wheels</h3>
+<input type="text" id="wheelName" placeholder="Wheel name" />
+<button onclick="saveWheel()">Save Wheel</button>
+<select id="savedWheels" onchange="loadWheel()">
+  <option value="">-- Select Saved Wheel --</option>
+</select>
+<button onclick="deleteWheel()">Delete</button><script>
   const canvas = document.getElementById("wheelCanvas");
   const ctx = canvas.getContext("2d");
   const radius = canvas.width / 2;
@@ -71,7 +67,6 @@
   function updateUI() {
     drawWheel();
     renderOptionList();
-    localStorage.setItem("wheel_current", JSON.stringify(options));
   }
 
   function renderOptionList() {
@@ -92,11 +87,13 @@
   function changeColor(i, color) {
     options[i].color = color;
     updateUI();
+    saveCurrentWheel();
   }
 
   function removeOption(i) {
     options.splice(i, 1);
     updateUI();
+    saveCurrentWheel();
   }
 
   function drawWheel() {
@@ -143,6 +140,7 @@
         const selected = options[index < 0 ? index + options.length : index];
         selected.count = (selected.count || 0) + 1;
         updateUI();
+        saveCurrentWheel();
         confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
         alert(`You got: ${selected.label}`);
       }
@@ -155,13 +153,40 @@
     return 1 - Math.pow(1 - t, 3);
   }
 
-  // Load last state
-  const saved = localStorage.getItem("wheel_current");
-  if (saved) {
-    options = JSON.parse(saved);
-    updateUI();
+  function saveWheel() {
+    const name = document.getElementById("wheelName").value.trim();
+    if (!name) return alert("Enter a name to save the wheel");
+    localStorage.setItem("wheel_" + name, JSON.stringify(options));
+    updateSavedDropdown();
   }
-</script>
 
-</body>
-</html>
+  function loadWheel() {
+    const name = document.getElementById("savedWheels").value;
+    if (!name) return;
+    const data = localStorage.getItem("wheel_" + name);
+    if (data) {
+      options = JSON.parse(data);
+      updateUI();
+    }
+  }
+
+  function deleteWheel() {
+    const name = document.getElementById("savedWheels").value;
+    if (!name) return;
+    if (confirm(`Delete wheel "${name}"?`)) {
+      localStorage.removeItem("wheel_" + name);
+      document.getElementById("savedWheels").value = "";
+      options = [];
+      updateUI();
+      updateSavedDropdown();
+    }
+  }
+
+  function saveCurrentWheel() {
+    const name = document.getElementById("savedWheels").value;
+    if (name) {
+      localStorage.setItem("wheel_" + name, JSON.stringify(options));
+    }
+  }
+
+  function updateSavedDropdown() {
