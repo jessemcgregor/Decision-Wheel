@@ -50,6 +50,10 @@
     button:hover {
       background-color: #45a045;
     }
+    .delete-btn {
+      background-color: #e53935;
+      margin-top: 5px;
+    }
     .option-item {
       display: flex;
       justify-content: space-between;
@@ -93,6 +97,7 @@
     <select id="savedWheels" onchange="loadWheel()">
       <option value="">-- Load Saved Wheel --</option>
     </select>
+    <button class="delete-btn" onclick="deleteWheel()">Delete Selected Wheel</button>
   </div>  <script>
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
@@ -208,6 +213,19 @@
       if (!name) return alert("Please enter a wheel name");
       localStorage.setItem("wheel_" + name, JSON.stringify(options));
       updateSavedWheels();
+    }
+
+    function deleteWheel() {
+      const name = document.getElementById("savedWheels").value;
+      if (!name) return alert("Select a wheel to delete");
+      if (confirm(`Are you sure you want to delete the wheel "${name}"?`)) {
+        localStorage.removeItem("wheel_" + name);
+        updateSavedWheels();
+        options = [];
+        renderOptions();
+        drawWheel();
+        document.getElementById("savedWheels").value = "";
+      }
     }
 
     function loadWheel() {
