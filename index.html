@@ -54,6 +54,10 @@
       background-color: #e53935;
       margin-top: 5px;
     }
+    .utility-btn {
+      background-color: #2196f3;
+      margin-top: 5px;
+    }
     .option-item {
       display: flex;
       justify-content: space-between;
@@ -98,6 +102,8 @@
       <option value="">-- Load Saved Wheel --</option>
     </select>
     <button class="delete-btn" onclick="deleteWheel()">Delete Selected Wheel</button>
+    <button class="utility-btn" onclick="duplicateWheel()">Duplicate Selected Wheel</button>
+    <button class="utility-btn" onclick="renameWheel()">Rename Selected Wheel</button>
   </div>  <script>
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
@@ -225,6 +231,34 @@
         renderOptions();
         drawWheel();
         document.getElementById("savedWheels").value = "";
+      }
+    }
+
+    function duplicateWheel() {
+      const name = document.getElementById("savedWheels").value;
+      if (!name) return alert("Select a wheel to duplicate");
+      const newName = prompt("Enter a name for the duplicated wheel:");
+      if (!newName) return;
+      const data = localStorage.getItem("wheel_" + name);
+      if (data) {
+        localStorage.setItem("wheel_" + newName, data);
+        updateSavedWheels();
+        alert(`Wheel duplicated as "${newName}"`);
+      }
+    }
+
+    function renameWheel() {
+      const oldName = document.getElementById("savedWheels").value;
+      if (!oldName) return alert("Select a wheel to rename");
+      const newName = prompt("Enter a new name for the wheel:", oldName);
+      if (!newName || newName === oldName) return;
+      const data = localStorage.getItem("wheel_" + oldName);
+      if (data) {
+        localStorage.setItem("wheel_" + newName, data);
+        localStorage.removeItem("wheel_" + oldName);
+        updateSavedWheels();
+        document.getElementById("savedWheels").value = newName;
+        alert(`Wheel renamed to "${newName}"`);
       }
     }
 
