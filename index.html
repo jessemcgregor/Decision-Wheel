@@ -17,12 +17,12 @@
     canvas {
       margin: 20px 0;
     }
-    form, .options-list {
+    form, .options-list, .saved-wheels {
       width: 100%;
       max-width: 300px;
       margin-bottom: 20px;
     }
-    input, button {
+    input, button, select {
       font-size: 16px;
       margin: 5px 0;
       padding: 8px;
@@ -65,35 +65,28 @@
     <button type="submit">Add Option</button>
   </form>  <div class="options-list" id="optionsList"></div><canvas id="wheelCanvas" width="300" height="300"></canvas> <button onclick="spinWheel()">Spin</button>
 
-  <script>
+  <div class="saved-wheels">
+    <input type="text" id="wheelName" placeholder="Wheel name" />
+    <button onclick="saveWheel()">Save Wheel</button>
+    <select id="savedWheels" onchange="loadWheel()">
+      <option value="">-- Load Saved Wheel --</option>
+    </select>
+  </div>  <script>
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
     const radius = canvas.width / 2;
     let options = [];
+    let spinHistory = {};
     let angle = 0;
     let spinning = false;
-
-    function saveOptions() {
-      localStorage.setItem("wheelOptions", JSON.stringify(options));
-    }
-
-    function loadOptions() {
-      const saved = localStorage.getItem("wheelOptions");
-      if (saved) {
-        options = JSON.parse(saved);
-        renderOptions();
-        drawWheel();
-      }
-    }
 
     function addOption(e) {
       e.preventDefault();
       const label = document.getElementById("optionLabel").value.trim();
       const color = document.getElementById("optionColor").value;
       if (label) {
-        options.push({ label, color });
+        options.push({ label, color, count: 0 });
         document.getElementById("optionLabel").value = "";
-        saveOptions();
         renderOptions();
         drawWheel();
       }
@@ -101,7 +94,6 @@
 
     function removeOption(index) {
       options.splice(index, 1);
-      saveOptions();
       renderOptions();
       drawWheel();
     }
@@ -113,7 +105,7 @@
         const item = document.createElement("div");
         item.className = "option-item";
         item.innerHTML = `
-          <span class="option-label">${opt.label}</span>
+          <span class="option-label">${opt.label} (${opt.count || 0})</span>
           <button class="remove-btn" onclick="removeOption(${idx})">Remove</button>
         `;
         list.appendChild(item);
@@ -163,6 +155,9 @@
           spinning = false;
           const index = Math.floor((options.length - (angle / (2 * Math.PI) * options.length)) % options.length);
           const selected = options[index < 0 ? index + options.length : index];
+          selected.count = (selected.count || 0) + 1;
+          renderOptions();
+          saveCurrentState();
           alert(`You got: ${selected.label}!`);
         }
       }
@@ -174,6 +169,45 @@
       return 1 - Math.pow(1 - t, 3);
     }
 
-    loadOptions();
+    function saveWheel() {
+      const name = document.getElementById("wheelName").value.trim();
+      if (!name) return alert("Please enter a wheel name");
+      localStorage.setItem("wheel_" + name, JSON.stringify(options));
+      updateSavedWheels();
+    }
+
+    function loadWheel() {
+      const name = document.getElementById("savedWheels").value;
+      if (!name) return;
+      const saved = localStorage.getItem("wheel_" + name);
+      if (saved) {
+        options = JSON.parse(saved);
+        renderOptions();
+        drawWheel();
+      }
+    }
+
+    function updateSavedWheels() {
+      const select = document.getElementById("savedWheels");
+      const keys = Object.keys(localStorage).filter(k => k.startsWith("wheel_"));
+      select.innerHTML = '<option value="">-- Load Saved Wheel --</option>';
+      keys.forEach(key => {
+        const name = key.replace("wheel_", "");
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+      });
+    }
+
+    function saveCurrentState() {
+      const currentName = document.getElementById("savedWheels").value;
+      if (currentName) {
+        localStorage.setItem("wheel_" + currentName, JSON.stringify(options));
+      }
+    }
+
+    // Load saved wheels on startup
+    updateSavedWheels();
   </script></body>
 </html>
