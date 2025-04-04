@@ -174,7 +174,10 @@ const image = document.getElementById("centerImage");
 
   function drawWheel() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (!options.length) return;
+    if (!options.length) {
+  image.style.display = "block";
+  return;
+}
     const angleStep = (2 * Math.PI) / options.length;
     for (let i = 0; i < options.length; i++) {
       const start = angle + i * angleStep;
