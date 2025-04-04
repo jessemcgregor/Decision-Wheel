@@ -205,24 +205,51 @@
     }
 
     function spinWheel() {
-      if (spinning || options.length === 0) return;
-      spinning = true;
-      const winningIndex = Math.floor(Math.random() * options.length);
-      const anglePerSlice = (2 * Math.PI) / options.length;
-      const fullSpins = 6;
-      const targetRotation = (fullSpins * 2 * Math.PI) + ((options.length - winningIndex - 0.5) * anglePerSlice);
-      const start = performance.now();
-      const spinTime = Math.random() * 1000 + 2500;
+  if (spinning || options.length === 0) return;
+  spinning = true;
 
-      function animate(time) {
-        const elapsed = time - start;
-        const progress = Math.min(elapsed / spinTime, 1);
-        angle = targetRotation * easeOut(progress);
-        drawWheel();
-        image.style.transform = `translate(-50%, -50%) rotate(${-angle}rad)`;
+  const winningIndex = Math.floor(Math.random() * options.length);
+  const anglePerSlice = (2 * Math.PI) / options.length;
+  const fullSpins = 6;
+  const targetRotation = (fullSpins * 2 * Math.PI) + ((options.length - winningIndex - 0.5) * anglePerSlice);
+  const start = performance.now();
+  const spinTime = Math.random() * 1000 + 2500;
 
-        if (progress < 1) {
-          requestAnimationFrame(animate);
+  function animate(time) {
+    const elapsed = time - start;
+    const progress = Math.min(elapsed / spinTime, 1);
+    angle = targetRotation * easeOut(progress);
+
+    drawWheel();
+    image.style.transform = `translate(-50%, -50%) rotate(${-angle}rad)`;
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      spinning = false;
+      canvas.style.boxShadow = "none";
+      const selected = options[winningIndex];
+      selected.count = (selected.count || 0) + 1;
+      updateUI();
+
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: [selected.color]
+      });
+
+      const msg = document.createElement("div");
+      msg.textContent = `You got: ${selected.label}!`;
+      msg.style = "position:fixed;top:50%;left:50%;transform:translate(-50%, -50%) scale(0.8);background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.2);font-size:20px;z-index:9999;transition:transform 0.3s ease;";
+      document.body.appendChild(msg);
+      setTimeout(() => msg.style.transform = "translate(-50%, -50%) scale(1)", 50);
+      setTimeout(() => msg.remove(), 2000);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
         } else {
           spinning = false;
           canvas.style.boxShadow = "none";
