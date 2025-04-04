@@ -13,7 +13,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
       padding: 20px;
       background: #f4f4f4;
       color: #333;
@@ -39,7 +38,6 @@
       border: 1px solid #ccc;
       width: 100%;
       box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
     }
     button {
       background-color: #4caf50;
@@ -93,7 +91,7 @@
 <body>
   <h2>Decision Wheel</h2>
 
-  <form onsubmit="addOption(event)">
+  <form id="optionForm">
     <input type="text" id="optionLabel" placeholder="Option label" required />
     <button type="submit">Add Option</button>
   </form>
@@ -122,34 +120,18 @@
     let angle = 0;
     let spinning = false;
 
-    function getNextColor(index) {
-      const colors = ["#f94144", "#f3722c", "#f8961e", "#f9844a", "#f9c74f", "#90be6d", "#43aa8b", "#577590"];
-      return colors[index % colors.length];
-    }
+    const colorPool = ["#f94144", "#f3722c", "#f8961e", "#f9c74f", "#90be6d", "#43aa8b", "#577590"];
 
-    function addOption(e) {
+    document.getElementById("optionForm").addEventListener("submit", function (e) {
       e.preventDefault();
-      const label = document.getElementById("optionLabel").value.trim();
-      const color = getNextColor(options.length);
-      if (label) {
-        options.push({ label, color, count: 0 });
-        document.getElementById("optionLabel").value = "";
-        renderOptions();
-        drawWheel();
-      }
-    }
-
-    function removeOption(index) {
-      options.splice(index, 1);
-      renderOptions();
-      drawWheel();
-    }
-
-    function updateColor(index, newColor) {
-      options[index].color = newColor;
-      drawWheel();
-      saveCurrentState();
-    }
+      const input = document.getElementById("optionLabel");
+      const label = input.value.trim();
+      if (!label) return;
+      const color = colorPool[options.length % colorPool.length];
+      options.push({ label, color, count: 0 });
+      input.value = "";
+      updateUI();
+    });
 
     function renderOptions() {
       const list = document.getElementById("optionsList");
@@ -166,9 +148,20 @@
       });
     }
 
+    function updateColor(index, newColor) {
+      options[index].color = newColor;
+      drawWheel();
+      saveCurrentState();
+    }
+
+    function removeOption(index) {
+      options.splice(index, 1);
+      updateUI();
+    }
+
     function drawWheel() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (options.length === 0) return;
+      if (!options.length) return;
       const angleStep = (2 * Math.PI) / options.length;
       for (let i = 0; i < options.length; i++) {
         const start = angle + i * angleStep;
@@ -210,8 +203,7 @@
           const index = Math.floor((options.length - (angle / (2 * Math.PI) * options.length)) % options.length);
           const selected = options[index < 0 ? index + options.length : index];
           selected.count = (selected.count || 0) + 1;
-          renderOptions();
-          saveCurrentState();
+          updateUI();
           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
           alert(`You got: ${selected.label}!`);
         }
@@ -222,6 +214,12 @@
 
     function easeOut(t) {
       return 1 - Math.pow(1 - t, 3);
+    }
+
+    function updateUI() {
+      drawWheel();
+      renderOptions();
+      saveCurrentState();
     }
 
     function saveWheel() {
@@ -238,8 +236,7 @@
         localStorage.removeItem("wheel_" + name);
         updateSavedWheels();
         options = [];
-        renderOptions();
-        drawWheel();
+        updateUI();
         document.getElementById("savedWheels").value = "";
       }
     }
@@ -258,21 +255,18 @@
     }
 
     function renameWheel() {
-  const oldName = document.getElementById("savedWheels").value;
-  if (!oldName) return alert("Select a wheel to rename");
-  const newName = prompt("Enter a new name for the wheel:", oldName);
-  if (!newName || newName === oldName) return;
-
-  const currentData = localStorage.getItem("wheel_" + oldName);
-  if (currentData) {
-    localStorage.setItem("wheel_" + newName, currentData);
-    localStorage.removeItem("wheel_" + oldName);
-    updateSavedWheels();
-    document.getElementById("savedWheels").value = newName;
-    document.getElementById("wheelName").value = newName;
-    alert(`Wheel renamed to "${newName}"`);
-  }
-}"`);
+      const oldName = document.getElementById("savedWheels").value;
+      if (!oldName) return alert("Select a wheel to rename");
+      const newName = prompt("Enter a new name for the wheel:", oldName);
+      if (!newName || newName === oldName) return;
+      const data = localStorage.getItem("wheel_" + oldName);
+      if (data) {
+        localStorage.setItem("wheel_" + newName, data);
+        localStorage.removeItem("wheel_" + oldName);
+        updateSavedWheels();
+        document.getElementById("savedWheels").value = newName;
+        document.getElementById("wheelName").value = newName;
+        alert(`Wheel renamed to "${newName}"`);
       }
     }
 
@@ -282,8 +276,8 @@
       const saved = localStorage.getItem("wheel_" + name);
       if (saved) {
         options = JSON.parse(saved);
-        renderOptions();
-        drawWheel();
+        document.getElementById("wheelName").value = name;
+        updateUI();
       }
     }
 
@@ -307,7 +301,7 @@
       }
     }
 
-    // Load saved wheels on startup
+    // Init
     updateSavedWheels();
   </script>
 </body>
