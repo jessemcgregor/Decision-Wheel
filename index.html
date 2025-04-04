@@ -216,7 +216,7 @@
         const spinTime = Math.random() * 3000 + 2000;
         const winningIndex = Math.floor(Math.random() * options.length);
         const anglePerSlice = 2 * Math.PI / options.length;
-        const targetAngle = (options.length - winningIndex - 0.5) * anglePerSlice;
+        const targetAngle = (options.length - winningIndex - 0.5) * anglePerSlice - Math.PI / 2;
         const spinAngle = (targetAngle + 6 * 2 * Math.PI) * (180 / Math.PI);
         const start = performance.now();
         canvas.style.transition = "box-shadow 0.3s ease";
