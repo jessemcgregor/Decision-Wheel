@@ -4,61 +4,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Decision Wheel</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      font-family: sans-serif;
+      font-family: 'Inter', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
       padding: 20px;
       background: #f4f4f4;
+      color: #333;
+    }
+    h2 {
+      font-weight: 600;
+      font-size: 28px;
+      margin-bottom: 10px;
     }
     canvas {
       margin: 20px 0;
     }
     form, .options-list, .saved-wheels {
       width: 100%;
-      max-width: 300px;
+      max-width: 320px;
       margin-bottom: 20px;
     }
     input, button, select {
       font-size: 16px;
-      margin: 5px 0;
-      padding: 8px;
-      border-radius: 6px;
+      margin: 6px 0;
+      padding: 10px;
+      border-radius: 8px;
       border: 1px solid #ccc;
       width: 100%;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
     }
     button {
       background-color: #4caf50;
       color: white;
       border: none;
       cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    button:hover {
+      background-color: #45a045;
     }
     .option-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 5px;
+      margin-top: 6px;
       background: #fff;
-      padding: 5px 10px;
-      border-radius: 4px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .option-label {
       flex: 1;
+      font-weight: 500;
     }
     .remove-btn {
       background: #f44336;
       color: white;
       border: none;
-      border-radius: 4px;
-      padding: 4px 8px;
+      border-radius: 6px;
+      padding: 6px 10px;
       cursor: pointer;
     }
     .color-picker {
       margin-left: 10px;
+      width: 40px;
+      height: 30px;
+      padding: 0;
+      border: none;
     }
   </style>
 </head>
@@ -140,7 +159,7 @@
         ctx.rotate(start + angleStep / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#333";
-        ctx.font = "16px sans-serif";
+        ctx.font = "bold 16px 'Inter', sans-serif";
         ctx.fillText(options[i].label, radius - 10, 5);
         ctx.restore();
       }
@@ -168,11 +187,7 @@
           selected.count = (selected.count || 0) + 1;
           renderOptions();
           saveCurrentState();
-          confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 }
-          });
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
           alert(`You got: ${selected.label}!`);
         }
       }
