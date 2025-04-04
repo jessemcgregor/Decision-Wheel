@@ -204,12 +204,13 @@
         const start = performance.now();
         canvas.style.transition = "box-shadow 0.3s ease";
         canvas.style.boxShadow = "0 0 20px 5px #4caf50";
-        image.style.animation = "spin 1s linear infinite";
+        // image.style.animation = "spin 1s linear infinite";
 
         function animate(time) {
           const elapsed = time - start;
           const progress = Math.min(elapsed / spinTime, 1);
           angle = (spinAngle * easeOut(progress) * Math.PI) / 180;
+          image.style.transform = `translate(-50%, -50%) rotate(${-angle}rad)`;
           drawWheel();
 
           if (progress < 1) {
@@ -217,7 +218,7 @@
           } else {
             spinning = false;
             canvas.style.boxShadow = "none";
-            image.style.animation = "";
+            image.style.transform = "translate(-50%, -50%) rotate(0rad)";
             const index = Math.floor((options.length - (angle / (2 * Math.PI) * options.length)) % options.length);
             const selected = options[index < 0 ? index + options.length : index];
             selected.count = (selected.count || 0) + 1;
