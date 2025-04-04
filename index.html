@@ -73,6 +73,19 @@
     let angle = 0;
     let spinning = false;
 
+    function saveOptions() {
+      localStorage.setItem("wheelOptions", JSON.stringify(options));
+    }
+
+    function loadOptions() {
+      const saved = localStorage.getItem("wheelOptions");
+      if (saved) {
+        options = JSON.parse(saved);
+        renderOptions();
+        drawWheel();
+      }
+    }
+
     function addOption(e) {
       e.preventDefault();
       const label = document.getElementById("optionLabel").value.trim();
@@ -80,6 +93,7 @@
       if (label) {
         options.push({ label, color });
         document.getElementById("optionLabel").value = "";
+        saveOptions();
         renderOptions();
         drawWheel();
       }
@@ -87,6 +101,7 @@
 
     function removeOption(index) {
       options.splice(index, 1);
+      saveOptions();
       renderOptions();
       drawWheel();
     }
@@ -158,5 +173,7 @@
     function easeOut(t) {
       return 1 - Math.pow(1 - t, 3);
     }
+
+    loadOptions();
   </script></body>
 </html>
