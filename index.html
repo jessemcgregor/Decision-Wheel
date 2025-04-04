@@ -1,8 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Decision Wheel</title>
   <style>
     body {
@@ -18,7 +17,7 @@
     canvas {
       margin-bottom: 20px;
     }
-    button, textarea {
+    button, input, textarea {
       font-size: 16px;
       margin: 5px;
       padding: 8px 12px;
@@ -39,36 +38,25 @@
   </style>
 </head>
 <body>
-  <canvas id="wheelCanvas" width="300" height="300"></canvas>
-
-  <textarea id="optionsInput" placeholder="Enter options, one per line">Pizza
-Sushi
-Tacos
-Burgers
-Salad
-Pasta</textarea><br>
-  <button onclick="updateOptions()">Update Options</button>
-  <button onclick="spinWheel()">Spin</button>
+  <canvas id="wheelCanvas" width="300" height="300"></canvas>  <textarea id="optionsInput" placeholder="Enter options, one per line">Pizza\nSushi\nTacos\nBurgers\nSalad\nPasta</textarea><br><button onclick="updateOptions()">Update Options</button> <button onclick="spinWheel()">Spin</button>
 
   <script>
+    let options = [];
     const canvas = document.getElementById("wheelCanvas");
     const ctx = canvas.getContext("2d");
     const radius = canvas.width / 2;
-    let options = [];
     let angle = 0;
     let spinning = false;
 
     function updateOptions() {
       const input = document.getElementById("optionsInput").value;
-      options = input.split("\\n").map(opt => opt.trim()).filter(opt => opt);
-      angle = 0; // reset the angle
+      options = input.split("\n").map(opt => opt.trim()).filter(opt => opt);
       drawWheel();
     }
 
     function drawWheel() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (options.length === 0) return;
-
       const angleStep = (2 * Math.PI) / options.length;
       for (let i = 0; i < options.length; i++) {
         const start = angle + i * angleStep;
@@ -107,8 +95,8 @@ Pasta</textarea><br>
           requestAnimationFrame(animate);
         } else {
           spinning = false;
-          const index = Math.floor((options.length - (angle / (2 * Math.PI) * options.length)) % options.length);
-          const selected = options[index < 0 ? index + options.length : index];
+          const selectedIndex = Math.floor((options.length - (angle / (2 * Math.PI) * options.length)) % options.length);
+          const selected = options[selectedIndex < 0 ? selectedIndex + options.length : selectedIndex];
           alert(`You got: ${selected}!`);
         }
       }
@@ -120,7 +108,6 @@ Pasta</textarea><br>
       return 1 - Math.pow(1 - t, 3);
     }
 
-    updateOptions(); // initialize wheel on load
-  </script>
-</body>
+    updateOptions(); // initialize with default options
+  </script></body>
 </html>
