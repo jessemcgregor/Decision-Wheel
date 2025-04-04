@@ -248,17 +248,21 @@
     }
 
     function renameWheel() {
-      const oldName = document.getElementById("savedWheels").value;
-      if (!oldName) return alert("Select a wheel to rename");
-      const newName = prompt("Enter a new name for the wheel:", oldName);
-      if (!newName || newName === oldName) return;
-      const data = localStorage.getItem("wheel_" + oldName);
-      if (data) {
-        localStorage.setItem("wheel_" + newName, data);
-        localStorage.removeItem("wheel_" + oldName);
-        updateSavedWheels();
-        document.getElementById("savedWheels").value = newName;
-        alert(`Wheel renamed to "${newName}"`);
+  const oldName = document.getElementById("savedWheels").value;
+  if (!oldName) return alert("Select a wheel to rename");
+  const newName = prompt("Enter a new name for the wheel:", oldName);
+  if (!newName || newName === oldName) return;
+
+  const currentData = localStorage.getItem("wheel_" + oldName);
+  if (currentData) {
+    localStorage.setItem("wheel_" + newName, currentData);
+    localStorage.removeItem("wheel_" + oldName);
+    updateSavedWheels();
+    document.getElementById("savedWheels").value = newName;
+    document.getElementById("wheelName").value = newName;
+    alert(`Wheel renamed to "${newName}"`);
+  }
+}"`);
       }
     }
 
