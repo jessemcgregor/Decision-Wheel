@@ -21,9 +21,6 @@
       font-size: 28px;
       margin-bottom: 10px;
     }
-    canvas {
-      margin: 20px 0;
-    }
     form, .options-list, .saved-wheels {
       width: 100%;
       max-width: 320px;
@@ -86,33 +83,33 @@
       border: none;
     }
     #centerImage {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 10;
-}
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 10;
+    }
+    #wheelHighlight {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 25px solid red;
+      z-index: 20;
+      pointer-events: none;
+    }
     @keyframes spin {
       from { transform: translate(-50%, -50%) rotate(0deg); }
       to { transform: translate(-50%, -50%) rotate(360deg); }
     }
-    #wheelHighlight {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
-    border-bottom: 25px solid red;
-    z-index: 20;
-    pointer-events: none;
-  }
-</style>
+  </style>
 </head>
 <body>
   <h2>Decision Wheel</h2>
@@ -120,10 +117,10 @@
     <input type="text" id="optionLabel" placeholder="Enter option" required />
     <button type="submit">Add Option</button>
   </form>  <div class="options-list" id="optionList"></div>  <div style="position: relative; width: 300px; height: 300px; display: flex; justify-content: center; align-items: center;">
-  <canvas id="wheelCanvas" width="300" height="300"></canvas>
-<div id="wheelHighlight"></div>
-  <img id="centerImage" src="chihuahua_transparent.png" alt="Spinner Image" />
-</div>
+    <canvas id="wheelCanvas" width="300" height="300"></canvas>
+    <div id="wheelHighlight"></div>
+    <img id="centerImage" src="chihuahua_transparent.png" alt="Spinner Image" />
+  </div>
   <button onclick="spinWheel()">Spin</button>  <h3>Saved Wheels</h3>
   <input type="text" id="wheelName" placeholder="Wheel name" />
   <button onclick="saveWheel()">Save</button>
@@ -131,197 +128,187 @@
     <option value="">-- Load Saved Wheel --</option>
   </select>
   <button onclick="deleteWheel()">Delete</button>  <script>
-    window.onload = function() {
-      const canvas = document.getElementById("wheelCanvas");
-      const ctx = canvas.getContext("2d");
-      const radius = canvas.width / 2;
-      let options = [];
-      let angle = 0;
-      let spinning = false;
-      const image = document.getElementById("centerImage");
-      const colorPool = ["#f94144", "#f3722c", "#f9c74f", "#43aa8b", "#577590", "#277da1", "#90be6d"];
+    const canvas = document.getElementById("wheelCanvas");
+    const ctx = canvas.getContext("2d");
+    const radius = canvas.width / 2;
+    let options = [];
+    let angle = 0;
+    let spinning = false;
+    const image = document.getElementById("centerImage");
 
-      document.getElementById("optionForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const input = document.getElementById("optionLabel");
-        const label = input.value.trim();
-        if (!label) return;
-        const color = colorPool[options.length % colorPool.length];
-        options.push({ label, color, count: 0 });
-        input.value = "";
-        updateUI();
+    const colorPool = ["#f94144", "#f3722c", "#f9c74f", "#43aa8b", "#577590", "#277da1", "#90be6d"];
+
+    document.getElementById("optionForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const input = document.getElementById("optionLabel");
+      const label = input.value.trim();
+      if (!label) return;
+      const color = colorPool[options.length % colorPool.length];
+      options.push({ label, color, count: 0 });
+      input.value = "";
+      updateUI();
+    });
+
+    function updateUI() {
+      drawWheel();
+      renderOptionList();
+      saveCurrentWheelToStorage();
+    }
+
+    function renderOptionList() {
+      const list = document.getElementById("optionList");
+      list.innerHTML = "";
+      options.forEach((opt, i) => {
+        const div = document.createElement("div");
+        div.className = "option-item";
+        div.innerHTML = `
+          <span class="option-label">${opt.label} (${opt.count || 0})</span>
+          <input class="color-picker" type="color" value="${opt.color}" onchange="changeColor(${i}, this.value)" />
+          <button class="remove-btn" onclick="removeOption(${i})">Remove</button>
+        `;
+        list.appendChild(div);
       });
+    }
 
-      function updateUI() {
+    function changeColor(i, color) {
+      options[i].color = color;
+      updateUI();
+    }
+
+    function removeOption(i) {
+      options.splice(i, 1);
+      updateUI();
+    }
+
+    function drawWheel() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!options.length) return;
+      const angleStep = (2 * Math.PI) / options.length;
+      for (let i = 0; i < options.length; i++) {
+        const start = angle + i * angleStep - Math.PI / 2;
+        const end = start + angleStep;
+        ctx.beginPath();
+        ctx.moveTo(radius, radius);
+        ctx.arc(radius, radius, radius, start, end);
+        ctx.fillStyle = options[i].color;
+        ctx.fill();
+        ctx.stroke();
+        ctx.save();
+        ctx.translate(radius, radius);
+        ctx.rotate(start + angleStep / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#333";
+        ctx.font = "bold 16px 'Inter', sans-serif";
+        ctx.fillText(options[i].label, radius - 10, 5);
+        ctx.restore();
+      }
+    }
+
+    function spinWheel() {
+      if (spinning || options.length === 0) return;
+      spinning = true;
+      const winningIndex = Math.floor(Math.random() * options.length);
+      const anglePerSlice = (2 * Math.PI) / options.length;
+      const fullSpins = 6;
+      const targetRotation = (fullSpins * 2 * Math.PI) + ((options.length - winningIndex - 0.5) * anglePerSlice);
+      const start = performance.now();
+      const spinTime = Math.random() * 1000 + 2500;
+
+      function animate(time) {
+        const elapsed = time - start;
+        const progress = Math.min(elapsed / spinTime, 1);
+        angle = targetRotation * easeOut(progress);
         drawWheel();
-        renderOptionList();
-        saveCurrentWheelToStorage();
-      }
+        image.style.transform = `translate(-50%, -50%) rotate(${-angle}rad)`;
 
-      function renderOptionList() {
-        const list = document.getElementById("optionList");
-        list.innerHTML = "";
-        options.forEach((opt, i) => {
-          const div = document.createElement("div");
-          div.className = "option-item";
-          div.innerHTML = `
-            <span class="option-label">${opt.label} (${opt.count || 0})</span>
-            <input class="color-picker" type="color" value="${opt.color}" onchange="changeColor(${i}, this.value)" />
-            <button class="remove-btn" onclick="removeOption(${i})">Remove</button>
-          `;
-          list.appendChild(div);
-        });
-      }
-
-      window.changeColor = function(i, color) {
-        options[i].color = color;
-        updateUI();
-      };
-
-      window.removeOption = function(i) {
-        options.splice(i, 1);
-        updateUI();
-      };
-
-      function drawWheel() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (!options.length) {
-          image.style.display = "block";
-          return;
-        }
-        const angleStep = (2 * Math.PI) / options.length;
-        for (let i = 0; i < options.length; i++) {
-          const start = angle + i * angleStep - Math.PI / 2;
-          const end = start + angleStep;
-          ctx.beginPath();
-          ctx.moveTo(radius, radius);
-          ctx.arc(radius, radius, radius, start, end);
-          ctx.fillStyle = options[i].color;
-          ctx.fill();
-          ctx.stroke();
-          ctx.save();
-          ctx.translate(radius, radius);
-          ctx.rotate(start + angleStep / 2);
-          ctx.textAlign = "right";
-          ctx.fillStyle = "#333";
-          ctx.font = "bold 16px 'Inter', sans-serif";
-          ctx.fillText(options[i].label, radius - 10, 5);
-          ctx.restore();
-        }
-      }
-
-      window.spinWheel = function() {
-        if (spinning || options.length === 0) return;
-        spinning = true;
-        const spinTime = Math.random() * 3000 + 2000;
-        const winningIndex = Math.floor(Math.random() * options.length);
-        const anglePerSlice = 2 * Math.PI / options.length;
-        const targetAngle = (options.length - winningIndex - 0.5) * anglePerSlice - Math.PI / 2;
-        const spinAngle = (targetAngle + 6 * 2 * Math.PI) * (180 / Math.PI);
-        const start = performance.now();
-        canvas.style.transition = "box-shadow 0.3s ease";
-        canvas.style.boxShadow = "0 0 20px 5px #4caf50";
-        // image.style.animation = "spin 1s linear infinite";
-
-        function animate(time) {
-          const elapsed = time - start;
-          const progress = Math.min(elapsed / spinTime, 1);
-          angle = (spinAngle * easeOut(progress) * Math.PI) / 180;
-          image.style.transform = `translate(-50%, -50%) rotate(${-angle}rad)`;
-          drawWheel();
-
-          if (progress < 1) {
-            requestAnimationFrame(animate);
-          } else {
-            spinning = false;
-            canvas.style.boxShadow = "none";
-            image.style.transform = "translate(-50%, -50%) rotate(0rad)";
-            // Use preselected index directly
-            const index = winningIndex;
-            const selected = options[index < 0 ? index + options.length : index];
-            selected.count = (selected.count || 0) + 1;
-            updateUI();
-
-            confetti({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 },
-              colors: [selected.color]
-            });
-
-            const msg = document.createElement("div");
-            msg.textContent = `You got: ${selected.label}!`;
-            msg.style = "position:fixed;top:50%;left:50%;transform:translate(-50%, -50%) scale(0.8);background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.2);font-size:20px;z-index:9999;transition:transform 0.3s ease;";
-            document.body.appendChild(msg);
-            setTimeout(() => msg.style.transform = "translate(-50%, -50%) scale(1)", 50);
-            setTimeout(() => msg.remove(), 2000);
-          }
-        }
-
-        requestAnimationFrame(animate);
-      };
-
-      function easeOut(t) {
-        return 1 - Math.pow(1 - t, 3);
-      }
-
-      window.saveWheel = function() {
-        const name = document.getElementById("wheelName").value.trim();
-        if (!name) return alert("Enter a name for the wheel");
-        localStorage.setItem("wheel_" + name, JSON.stringify(options));
-        updateSavedList();
-      };
-
-      window.loadWheel = function() {
-        const name = document.getElementById("savedWheels").value;
-        if (!name) return;
-        const saved = localStorage.getItem("wheel_" + name);
-        if (saved) {
-          options = JSON.parse(saved);
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          spinning = false;
+          canvas.style.boxShadow = "none";
+          const selected = options[winningIndex];
+          selected.count = (selected.count || 0) + 1;
           updateUI();
-        }
-      };
 
-      window.deleteWheel = function() {
-        const name = document.getElementById("savedWheels").value;
-        if (!name) return alert("Choose a wheel to delete");
-        if (confirm(`Delete wheel '${name}'?`)) {
-          localStorage.removeItem("wheel_" + name);
-          updateSavedList();
-        }
-      };
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: [selected.color]
+          });
 
-      function saveCurrentWheelToStorage() {
-        localStorage.setItem("wheel_current", JSON.stringify(options));
+          const msg = document.createElement("div");
+          msg.textContent = `You got: ${selected.label}!`;
+          msg.style = "position:fixed;top:50%;left:50%;transform:translate(-50%, -50%) scale(0.8);background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.2);font-size:20px;z-index:9999;transition:transform 0.3s ease;";
+          document.body.appendChild(msg);
+          setTimeout(() => msg.style.transform = "translate(-50%, -50%) scale(1)", 50);
+          setTimeout(() => msg.remove(), 2000);
+        }
       }
 
-      function updateSavedList() {
-        const select = document.getElementById("savedWheels");
-        const keys = Object.keys(localStorage).filter(k => k.startsWith("wheel_"));
-        select.innerHTML = '<option value="">-- Load Saved Wheel --</option>';
-        keys.forEach(key => {
-          const name = key.replace("wheel_", "");
-          const opt = document.createElement("option");
-          opt.value = name;
-          opt.textContent = name;
-          select.appendChild(opt);
-        });
-      }
+      requestAnimationFrame(animate);
+    }
 
-      window.resetApp = function() {
-        if (confirm("Reset all saved wheels and clear everything?")) {
-          localStorage.clear();
-          location.reload();
-        }
-      };
+    function easeOut(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
 
-      const saved = localStorage.getItem("wheel_current");
+    function saveWheel() {
+      const name = document.getElementById("wheelName").value.trim();
+      if (!name) return alert("Enter a name for the wheel");
+      localStorage.setItem("wheel_" + name, JSON.stringify(options));
+      updateSavedList();
+    }
+
+    function loadWheel() {
+      const name = document.getElementById("savedWheels").value;
+      if (!name) return;
+      const saved = localStorage.getItem("wheel_" + name);
       if (saved) {
         options = JSON.parse(saved);
         updateUI();
       }
+    }
 
-      updateSavedList();
-    };
+    function deleteWheel() {
+      const name = document.getElementById("savedWheels").value;
+      if (!name) return alert("Choose a wheel to delete");
+      if (confirm(`Delete wheel '${name}'?`)) {
+        localStorage.removeItem("wheel_" + name);
+        updateSavedList();
+      }
+    }
+
+    function saveCurrentWheelToStorage() {
+      localStorage.setItem("wheel_current", JSON.stringify(options));
+    }
+
+    function updateSavedList() {
+      const select = document.getElementById("savedWheels");
+      const keys = Object.keys(localStorage).filter(k => k.startsWith("wheel_"));
+      select.innerHTML = '<option value="">-- Load Saved Wheel --</option>';
+      keys.forEach(key => {
+        const name = key.replace("wheel_", "");
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
+      });
+    }
+
+    function resetApp() {
+      if (confirm("Reset all saved wheels and clear everything?")) {
+        localStorage.clear();
+        location.reload();
+      }
+    }
+
+    const saved = localStorage.getItem("wheel_current");
+    if (saved) {
+      options = JSON.parse(saved);
+      updateUI();
+    }
+
+    updateSavedList();
   </script></body>
 </html>
