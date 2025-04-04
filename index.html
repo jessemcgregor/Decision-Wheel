@@ -99,7 +99,20 @@
       from { transform: translate(-50%, -50%) rotate(0deg); }
       to { transform: translate(-50%, -50%) rotate(360deg); }
     }
-  </style>
+    #wheelHighlight {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 25px solid red;
+    z-index: 20;
+    pointer-events: none;
+  }
+</style>
 </head>
 <body>
   <h2>Decision Wheel</h2>
@@ -108,6 +121,7 @@
     <button type="submit">Add Option</button>
   </form>  <div class="options-list" id="optionList"></div>  <div style="position: relative; width: 300px; height: 300px; display: flex; justify-content: center; align-items: center;">
   <canvas id="wheelCanvas" width="300" height="300"></canvas>
+<div id="wheelHighlight"></div>
   <img id="centerImage" src="getimg_ai_img-zRv4b4txBvdbRasfUj25w%20(1).png" alt="Spinner Image" />
 </div>
   <button onclick="spinWheel()">Spin</button>  <h3>Saved Wheels</h3>
