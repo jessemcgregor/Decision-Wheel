@@ -118,11 +118,17 @@
     }
 
     function addOption(e) {
-      e.preventDefault();
-      const label = document.getElementById("optionLabel").value.trim();
-      const color = getNextColor(options.length);
-      if (label) {
-        options.push({ label, color, count: 0 });
+  e.preventDefault();
+  const input = document.getElementById("optionLabel");
+  const label = input.value.trim();
+  if (!label) return;
+  const color = getNextColor(options.length);
+  options.push({ label, color, count: 0 });
+  input.value = "";
+  renderOptions();
+  drawWheel();
+  saveCurrentState();
+});
         document.getElementById("optionLabel").value = "";
         renderOptions();
         drawWheel();
