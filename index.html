@@ -3,7 +3,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Clean Decision Wheel</title>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js">};
+</script>
   <style>
     body {
       margin: 0;
@@ -113,6 +114,7 @@
   <option value="">-- Load Saved Wheel --</option>
 </select>
 <button onclick="deleteWheel()">Delete</button><script>
+window.onload = function() {
   const canvas = document.getElementById("wheelCanvas");
   const ctx = canvas.getContext("2d");
   const radius = canvas.width / 2;
