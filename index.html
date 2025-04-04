@@ -56,6 +56,9 @@
       padding: 4px 8px;
       cursor: pointer;
     }
+    .color-picker {
+      margin-left: 10px;
+    }
   </style>
 </head>
 <body>
@@ -76,7 +79,6 @@
     const ctx = canvas.getContext("2d");
     const radius = canvas.width / 2;
     let options = [];
-    let spinHistory = {};
     let angle = 0;
     let spinning = false;
 
@@ -98,6 +100,12 @@
       drawWheel();
     }
 
+    function updateColor(index, newColor) {
+      options[index].color = newColor;
+      drawWheel();
+      saveCurrentState();
+    }
+
     function renderOptions() {
       const list = document.getElementById("optionsList");
       list.innerHTML = "";
@@ -106,6 +114,7 @@
         item.className = "option-item";
         item.innerHTML = `
           <span class="option-label">${opt.label} (${opt.count || 0})</span>
+          <input class="color-picker" type="color" value="${opt.color}" onchange="updateColor(${idx}, this.value)" />
           <button class="remove-btn" onclick="removeOption(${idx})">Remove</button>
         `;
         list.appendChild(item);
