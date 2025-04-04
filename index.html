@@ -106,9 +106,11 @@
   <button onclick="resetApp()" style="background:none;border:none;font-size:24px;margin-bottom:20px;cursor:pointer;" title="Reset App">⚙️</button>  <form id="optionForm">
     <input type="text" id="optionLabel" placeholder="Enter option" required />
     <button type="submit">Add Option</button>
-  </form>  <div class="options-list" id="optionList"></div><canvas id="wheelCanvas" width="300" height="300"></canvas> <img id="centerImage" src="getimg_ai_img-zRv4b4txBvdbRasfUj25w%20(1).png" alt="Spinner Image" /> <button onclick="spinWheel()">Spin</button>
-
-  <h3>Saved Wheels</h3>
+  </form>  <div class="options-list" id="optionList"></div>  <div style="position: relative; width: 300px; height: 300px;">
+  <canvas id="wheelCanvas" width="300" height="300"></canvas>
+  <img id="centerImage" src="getimg_ai_img-zRv4b4txBvdbRasfUj25w%20(1).png" alt="Spinner Image" />
+</div>
+  <button onclick="spinWheel()">Spin</button>  <h3>Saved Wheels</h3>
   <input type="text" id="wheelName" placeholder="Wheel name" />
   <button onclick="saveWheel()">Save</button>
   <select id="savedWheels" onchange="loadWheel()">
