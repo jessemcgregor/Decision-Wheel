@@ -86,15 +86,15 @@
       border: none;
     }
     #centerImage {
-      position: absolute;
-      width: 80px;
-      height: 80px;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 10;
-    }
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 10;
+}
     @keyframes spin {
       from { transform: translate(-50%, -50%) rotate(0deg); }
       to { transform: translate(-50%, -50%) rotate(360deg); }
@@ -106,7 +106,7 @@
   <button onclick="resetApp()" style="background:none;border:none;font-size:24px;margin-bottom:20px;cursor:pointer;" title="Reset App">⚙️</button>  <form id="optionForm">
     <input type="text" id="optionLabel" placeholder="Enter option" required />
     <button type="submit">Add Option</button>
-  </form>  <div class="options-list" id="optionList"></div>  <div style="position: relative; width: 300px; height: 300px;">
+  </form>  <div class="options-list" id="optionList"></div>  <div style="position: relative; width: 300px; height: 300px; display: flex; justify-content: center; align-items: center;">
   <canvas id="wheelCanvas" width="300" height="300"></canvas>
   <img id="centerImage" src="getimg_ai_img-zRv4b4txBvdbRasfUj25w%20(1).png" alt="Spinner Image" />
 </div>
