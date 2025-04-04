@@ -90,10 +90,10 @@
   </style>
 </head>
 <body>
-  <h2>Decision Wheel</h2>  <form onsubmit="addOption(event)">
-    <input type="text" id="optionLabel" placeholder="Option label" required />
-    <button type="submit">Add Option</button>
-  </form>  <div class="options-list" id="optionsList"></div><canvas id="wheelCanvas" width="300" height="300"></canvas> <button onclick="spinWheel()">Spin</button>
+  <h2>Decision Wheel</h2>  <form id="optionForm">
+  <input type="text" id="optionLabel" placeholder="Option label" required />
+  <button type="submit">Add Option</button>
+</form>  <div class="options-list" id="optionsList"></div><canvas id="wheelCanvas" width="300" height="300"></canvas> <button onclick="spinWheel()">Spin</button>
 
   <div class="saved-wheels">
     <input type="text" id="wheelName" placeholder="Wheel name" />
@@ -303,7 +303,9 @@
       }
     }
 
-    // Load saved wheels on startup
+    document.getElementById("optionForm").addEventListener("submit", addOption);
+
+// Load saved wheels on startup
     updateSavedWheels();
   </script></body>
 </html>
