@@ -221,7 +221,8 @@
     angle = targetRotation * easeOut(progress);
 
     drawWheel();
-    image.style.transform = `translate(-50%, -50%) rotate(${-angle}rad)`;
+    const imageRotation = -angle + (winningIndex + 0.5) * anglePerSlice;
+    image.style.transform = `translate(-50%, -50%) rotate(${imageRotation}rad)`;
 
     if (progress < 1) {
       requestAnimationFrame(animate);
