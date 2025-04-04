@@ -236,7 +236,8 @@
             spinning = false;
             canvas.style.boxShadow = "none";
             image.style.transform = "translate(-50%, -50%) rotate(0rad)";
-            const index = winningIndex;
+            const finalAngle = angle % (2 * Math.PI);
+            const index = Math.floor((options.length - ((finalAngle + Math.PI / 2) % (2 * Math.PI)) / anglePerSlice)) % options.length;
             const selected = options[index < 0 ? index + options.length : index];
             selected.count = (selected.count || 0) + 1;
             updateUI();
